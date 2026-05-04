@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portafolio Creativo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">Portfolio <span>Creativo</span></div>
+    <nav class="nav">
+      <a onclick="scrollToWeeks()">Semanas</a>
+      <a onclick="scrollToWeeks()">Trabajos</a>
+    </nav>
+    <button class="admin-btn" onclick="openAdminPanel()">Admin</button>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-subtitle">Portafolio del curso</p>
+    <h1>Baigorrea de la cruz<br><em>Ismael</em></h1>
+    <div class="hero-divider"></div>
+    
+    <div class="stats">
+      <div class="stat"><span class="stat-num" id="stat-weeks">16</span><span class="stat-label">Semanas</span></div>
+      <div class="stat"><span class="stat-num" id="stat-files">0</span><span class="stat-label">Archivos</span></div>
+      <div class="stat"><span class="stat-num">2026</span><span class="stat-label">Año</span></div>
+    </div>
+  </section>
+
+  <!-- WEEKS GRID -->
+  <main class="main" id="weeks-section">
+    <div class="section-header">
+      <h2 class="section-title">Semanas del curso</h2>
+      <p class="section-sub">Haz clic en una semana para ver su contenido</p>
+    </div>
+    <div class="weeks-grid" id="weeks-grid"></div>
+  </main>
+
+  <!-- VIEW MODAL -->
+  <div class="overlay" id="view-overlay">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2 id="modal-title"></h2>
+          <p class="week-tag" id="modal-tag"></p>
+        </div>
+        <button class="close-btn" onclick="closeViewModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc" id="modal-desc"></p>
+
+        <!-- Portada imagen -->
+        <div id="modal-image-wrap" style="display:none">
+          <p class="modal-section-label">Portada</p>
+          <div class="modal-cover-box">
+            <img id="modal-cover-img" src="" alt="Portada de la semana" />
+          </div>
+        </div>
+
+        <!-- PDF descarga -->
+        <div id="modal-pdf-wrap" style="display:none">
+          <p class="modal-section-label">Documento PDF</p>
+          <div class="pdf-download-row">
+            <div class="pdf-icon-big">PDF</div>
+            <div class="pdf-info">
+              <span class="pdf-filename" id="modal-pdf-name"></span>
+              <span class="pdf-filesize" id="modal-pdf-size"></span>
+            </div>
+            <a class="pdf-dl-btn" id="modal-pdf-link" href="#" download>↓ Descargar</a>
+          </div>
+        </div>
+
+        <p class="empty-note" id="file-empty">No hay archivos publicados para esta semana aún.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="admin-overlay" id="admin-overlay">
+    <div class="admin-box">
+
+      <div class="admin-head">
+        <div>
+          <h2>Panel Administrador</h2>
+          <span class="admin-tag">Acceso restringido</span>
+        </div>
+        <button class="admin-close" onclick="closeAdminPanel()">✕</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="login-section" class="login-section">
+        <p>Ingresa con tus credenciales para gestionar el contenido del portafolio.</p>
+        <div class="form-group">
+          <label for="login-user">Usuario</label>
+          <input type="text" id="login-user" placeholder="admin" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label for="login-pass">Contraseña</label>
+          <input type="password" id="login-pass" placeholder="••••••" />
+        </div>
+        <p class="msg-error" id="login-error" style="display:none"></p>
+        <button class="btn-primary" onclick="doLogin()">Ingresar</button>
+      </div>
+
+      <!-- ADMIN CONTENT -->
+      <div id="admin-content" style="display:none">
+        <div class="tab-nav">
+          <button class="tab-btn active" data-tab="upload" onclick="switchTab('upload')">Subir archivos</button>
+          <button class="tab-btn"        data-tab="manage" onclick="switchTab('manage')">Gestionar</button>
+        </div>
+
+        <!-- Tab Upload -->
+        <div class="tab-pane active" id="tab-upload">
+          <div class="form-group">
+            <label for="upload-week">Semana destino</label>
+            <select id="upload-week"></select>
+          </div>
+
+          <!-- Imagen -->
+          <div class="upload-block">
+            <p class="upload-block-title">🖼 Imagen de portada</p>
+            <p class="upload-block-sub">Se mostrará como portada visual de la semana</p>
+            <label class="upload-zone" id="img-zone" for="img-input">
+              <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImageSelect(event)" />
+              <strong id="img-zone-label">Seleccionar imagen</strong>
+              <span id="img-zone-sub">JPG, PNG o WEBP</span>
+            </label>
+            <div class="preview-box" id="img-preview" style="display:none">
+              <img id="img-preview-img" src="" alt="preview" />
+              <button class="remove-file-btn" onclick="removeImage(event)">✕ Quitar imagen</button>
+            </div>
+          </div>
+
+          <!-- PDF -->
+          <div class="upload-block">
+            <p class="upload-block-title">📄 Archivo PDF</p>
+            <p class="upload-block-sub">Se mostrará como descarga en la semana</p>
+            <label class="upload-zone" id="pdf-zone" for="pdf-input">
+              <input type="file" id="pdf-input" accept=".pdf" style="display:none" onchange="handlePdfSelect(event)" />
+              <strong id="pdf-zone-label">Seleccionar PDF</strong>
+              <span id="pdf-zone-sub">Solo archivos .pdf</span>
+            </label>
+            <div class="pdf-selected-row" id="pdf-selected" style="display:none">
+              <div class="pdf-icon-sm">PDF</div>
+              <span id="pdf-selected-name" class="pdf-sel-name"></span>
+              <button class="remove-file-btn small" onclick="removePdf(event)">✕</button>
+            </div>
+          </div>
+
+          <p id="upload-status" style="display:none"></p>
+          <button class="btn-primary" onclick="doUpload()">Publicar en portafolio</button>
+        </div>
+
+        <!-- Tab Manage -->
+        <div class="tab-pane" id="tab-manage">
+          <p style="font-size:0.8rem;color:var(--text2);margin-bottom:0.75rem">
+            Contenido publicado por semana. Puedes eliminar cualquier archivo.
+          </p>
+          <div id="manage-list"></div>
+        </div>
+
+        <div class="admin-footer">
+          <span>Sesión activa como <strong>admin</strong></span>
+          <button class="logout-btn" onclick="doLogout()">Cerrar sesión</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
