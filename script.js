@@ -26,7 +26,6 @@ function login() {
 
     document.getElementById("btnAgregar").style.display = "inline-block";
     mostrarBotonSalir();
-
     cargarSemanas();
   } else {
     alert("Datos incorrectos");
@@ -54,7 +53,7 @@ function cerrarSesion() {
   cargarSemanas();
 }
 
-// CARGAR DATOS
+// CARGAR DESDE SUPABASE
 async function cargarSemanas() {
   const { data, error } = await supabase.from("semanas").select("*");
 
@@ -81,11 +80,16 @@ function crearSemana(s, index) {
 
     <div class="contenido-semana">
       <iframe src="${s.pdf_url}"></iframe>
+
+      ${s.imagen 
+        ? `<img src="${s.imagen}" class="imagen-semana">`
+        : `<div class="imagen-semana"></div>`
+      }
     </div>
 
     <a href="${s.pdf_url}" target="_blank" class="descargar">⬇️ Descargar</a>
 
-    ${esAdmin ? `<br><button class="eliminar">🗑️ Eliminar</button>` : ""}
+    ${esAdmin ? `<br><button class="eliminar">🗑️</button>` : ""}
   `;
 
   if (esAdmin) {
@@ -98,7 +102,7 @@ function crearSemana(s, index) {
   contenedor.appendChild(div);
 }
 
-// 🚀 SUBIR PDF DESDE PC
+// AGREGAR SEMANA (PDF)
 async function agregarSemana() {
   const titulo = prompt("Nombre de la semana:");
 
@@ -109,34 +113,25 @@ async function agregarSemana() {
 
   input.onchange = async () => {
     const file = input.files[0];
-
-    if (!file) return;
-
     const nombre = Date.now() + "_" + file.name;
 
-    // subir a supabase
     const { error } = await supabase
       .storage
       .from("archivos")
       .upload(nombre, file);
 
     if (error) {
-      alert("Error al subir PDF ❌");
-      console.log(error);
+      alert("Error subiendo PDF");
       return;
     }
 
-    // obtener url pública
-    const { data } = supabase
-      .storage
-      .from("archivos")
-      .getPublicUrl(nombre);
+    const { data } = supabase.storage.from("archivos").getPublicUrl(nombre);
 
-    // guardar en tabla
     await supabase.from("semanas").insert([
       {
         titulo: titulo,
-        pdf_url: data.publicUrl
+        pdf_url: data.publicUrl,
+        imagen: ""
       }
     ]);
 
